@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from src.api.v1.pricing_plans import router as servers_router
 from src.api.v1.providers import router as providers_router
+from src.api.v1.orders import router as orders_router
+from src.api.v1.users import router as users_router
 from src.core.config import settings
 
 app = FastAPI(
@@ -13,3 +15,5 @@ app = FastAPI(
 
 app.include_router(servers_router)
 app.include_router(providers_router)
+app.include_router(orders_router)
+app.include_router(users_router)
