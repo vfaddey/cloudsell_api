@@ -1,5 +1,7 @@
 import enum
+import uuid
 from datetime import datetime
+from email.policy import default
 
 from sqlalchemy import UUID, Column, String, Boolean, Enum, DateTime, ForeignKey, Float
 
@@ -36,7 +38,7 @@ class User(Base):
 class Wallet(Base):
     __tablename__ = 'wallets'
 
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, nullable=False)
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4(), primary_key=True, index=True, nullable=False)
     balance = Column(Float(asdecimal=True), nullable=False, default=0)
 
     created_at = Column(DateTime, nullable=False, default=datetime.now)
