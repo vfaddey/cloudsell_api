@@ -13,11 +13,13 @@ from src.db.database import AsyncSessionFactory
 from src.exceptions.base import CloudSellAPIException
 from src.exceptions.user import UserNotFound
 from src.models import RAMType, DiskType, ServerType, BillingCycle
+from src.repositories.order_repository import SqlaOrderRepository
 from src.repositories.pricing_plan_repository import SqlaPricingPlanRepository
 from src.repositories.provider_repository import SqlaProviderRepository
 from src.repositories.user_repository import SqlaUserRepository
 from src.schemas.pricing_plan import PricingPlanFilter
 from src.schemas.user import UserOut
+from src.services.order_service import OrderService
 from src.services.pricing_plan_service import PricingPlanService
 from src.services.provider_service import ProviderService
 from src.services.user_service import UserService
@@ -53,6 +55,11 @@ async def get_pricing_plan_service(session: AsyncSession = Depends(get_session))
     return PricingPlanService(pricing_plan_repository,
                               provider_repository)
 
+async def get_order_service(session: AsyncSession = Depends(get_session)) -> OrderService:
+    order_repository = SqlaOrderRepository(session)
+    pricing_plan_repository = SqlaPricingPlanRepository(session)
+    return OrderService(order_repository, pricing_plan_repository)
+
 
 async def get_auth_adapter():
     return CloudsellAuthAdapter(settings.AUTH_SERVER_URL,
@@ -79,7 +86,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(h
         except:
             raise credentials_exception
     except CloudSellAPIException as e:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
 
 
 async def get_current_admin(user: UserOut = Depends(get_current_user)):
