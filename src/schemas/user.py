@@ -1,7 +1,17 @@
+from decimal import Decimal
+
 from black import datetime
 from pydantic import BaseModel, EmailStr, condecimal
 from pydantic import UUID4
-from src.models import AccountType
+from src.models import AccountType, Currency
+
+
+class WalletOut(BaseModel):
+    balance: Decimal
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
 
 
 class UserAdd(BaseModel):
@@ -18,5 +28,6 @@ class UserAdd(BaseModel):
 
 
 class UserOut(UserAdd):
-    balance: condecimal()
     is_admin: bool = False
+    wallet: WalletOut
+
