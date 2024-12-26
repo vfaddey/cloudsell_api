@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import UUID, Column, String, DECIMAL, ForeignKey, Enum, DateTime, Integer
+from sqlalchemy import UUID, Column, String, ForeignKey, Enum, DateTime, Integer, Float
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import relationship
 
@@ -17,7 +17,7 @@ class Provider(Base):
     logo_url = Column(String, nullable=False)
     website_url = Column(String, nullable=False)
     sla_details = Column(String, nullable=False)
-    rating = Column(DECIMAL, nullable=False, default=0)
+    rating = Column(Float(asdecimal=True), nullable=False, default=0)
 
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -36,6 +36,12 @@ class ServerType(str, enum.Enum):
     DEDICATED = 'dedicated'
 
 
+class Currency(enum.Enum):
+    RUB = 'rub'
+    USD = 'usd'
+    EUR = 'eur'
+
+
 class PricingPlan(Base):
     __tablename__ = 'pricing_plans'
 
@@ -43,7 +49,10 @@ class PricingPlan(Base):
     name = Column(String, nullable=False)
     provider_id = Column(UUID(as_uuid=True), ForeignKey('providers.id'), nullable=False)
     description = Column(String(255), nullable=False, default='')
-    price = Column(DECIMAL, nullable=False)
+
+    price = Column(Float(asdecimal=True), nullable=False)
+    currency = Column(Enum(Currency), default=Currency.RUB)
+
     billing_cycle = Column(Enum(BillingCycle, enum=BillingCycle), nullable=False)
     server_type = Column(Enum(ServerType), nullable=False)
     features_id = Column(UUID(as_uuid=True), ForeignKey('features.id'), nullable=False)
@@ -75,14 +84,14 @@ class Features(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False, index=True)
     processor_name = Column(String(50), default='')
     cores = Column(Integer, nullable=False)
-    core_frequency = Column(DECIMAL)
+    core_frequency = Column(Float(asdecimal=True))
 
     ram = Column(Integer, nullable=False)
     ram_type = Column(Enum(RAMType), nullable=False)
 
-    disk = Column(DECIMAL, nullable=False)
+    disk = Column(Integer, nullable=False)
     disk_type = Column(Enum(DiskType), default=DiskType.SSD)
-    network_speed = Column(DECIMAL)
+    network_speed = Column(Float(asdecimal=True))
     network_limit = Column(Integer)
     location = Column(String(40), default='')
 
@@ -100,7 +109,7 @@ class Review(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False, index=True)
 
-    rating = Column(DECIMAL, nullable=False, default=0)
+    rating = Column(Float(asdecimal=True), nullable=False, default=0)
     comment = Column(String(300), nullable=False)
     status = Column(Enum(ReviewStatus), nullable=False, default=ReviewStatus.PENDING)
 
