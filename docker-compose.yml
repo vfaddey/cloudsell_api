@@ -11,8 +11,6 @@ services:
       - cloudsell-network
     env_file:
       - .env
-    ports:
-      - "8888:8000"
 
 networks:
   cloudsell-network:
